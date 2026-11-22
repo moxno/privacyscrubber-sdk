@@ -1,0 +1,69 @@
+name: Detection Feedback (False Positive / Missed Entity)
+description: Report a detection accuracy or restoration edge case using synthetic examples only.
+title: "[Detection]: "
+labels: ["detection-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **ZERO-PII POLICY**: All samples MUST be 100% synthetic. Never include real personal records, clinical extracts, or live tokens.
+  - type: dropdown
+    id: feedback_kind
+    attributes:
+      label: Feedback Type
+      options:
+        - False Positive (harmless string masked unexpectedly)
+        - False Negative (synthetic sensitive pattern missed)
+        - Streaming Detokenization / Restoration Edge Case
+    validations:
+      required: true
+  - type: dropdown
+    id: profile
+    attributes:
+      label: Profile Used
+      options:
+        - General
+        - Dev
+        - Medical
+        - Pharma
+        - Biotech
+        - Telecom
+        - Legal
+        - Compliance
+        - CCPA
+        - Finance
+        - Bizops
+        - Sales
+        - WealthMgmt
+        - Insurance
+        - Accounting
+        - Underwriting
+        - Automotive
+        - Energy
+        - Hospitality
+        - HR
+        - Security
+        - Marketing
+        - Support
+        - RealEstate
+        - Agents
+        - Academic
+        - Creative
+        - Tech
+        - Personal
+        - Engineering
+    validations:
+      required: true
+  - type: textarea
+    id: synthetic_sample
+    attributes:
+      label: Minimal Synthetic Input & Observed Behavior
+    validations:
+      required: true
+  - type: checkboxes
+    id: zero_pii_confirm
+    attributes:
+      label: Zero-PII Confirmation
+      options:
+        - label: I confirm this sample is 100% synthetic and contains zero real personal data or live credentials.
+          required: true

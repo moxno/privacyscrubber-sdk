@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: SDK Documentation & Licensing
+    url: https://privacyscrubber.com/sdk/
+    about: Usage guides for Node.js, Browser, Edge, Streaming, and Commercial SDK tiers.
+  - name: Technical Support & Procurement
+    url: https://privacyscrubber.com/support/
+    about: Direct support for SDK/OEM/Enterprise licenses and procurement reviews.
+  - name: Vulnerability Disclosure
+    url: https://privacyscrubber.com/vulnerability-disclosure/
+    about: Responsible security vulnerability reporting. Never post security vulnerabilities in public issues.
+  - name: ZTDS Open Standard & Spec
+    url: https://ztds.ai/
+    about: Vendor-neutral Zero-Trust Data Sanitization RFC v1.0 specification.

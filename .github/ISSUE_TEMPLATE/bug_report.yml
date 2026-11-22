@@ -1,0 +1,44 @@
+name: Bug Report (Synthetic Inputs Only)
+description: Report a bug in @privacyscrubber/sdk without including real PII, PHI, or live credentials.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **ZERO-PII POLICY**: Never paste real customer PII, patient health data, production API keys, or private proprietary payloads into GitHub issues. Use **synthetic placeholder data** (e.g. `test.user@example.com`, `000-00-0000`, `sk-proj-EXAMPLE0000000000`).
+  - type: input
+    id: version
+    attributes:
+      label: SDK Version & Runtime
+      placeholder: "@privacyscrubber/sdk 2.5.2 | Node v22.x (ESM / CJS / Browser / Edge)"
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Entrypoint / Adapter
+      options:
+        - "@privacyscrubber/sdk (Node.js)"
+        - "@privacyscrubber/sdk/browser"
+        - "@privacyscrubber/sdk/vercel-ai"
+        - "@privacyscrubber/sdk/fastmcp"
+        - "@privacyscrubber/sdk/vision"
+        - "@privacyscrubber/sdk/sarif"
+        - "CLI (privacyscrubber-sdk / privacyscrubber-git-guard)"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Synthetic Reproduction Code
+      description: Minimal code snippet and expected vs actual behavior using synthetic strings only.
+    validations:
+      required: true
+  - type: checkboxes
+    id: zero_pii_confirm
+    attributes:
+      label: Zero-PII Confirmation
+      options:
+        - label: I confirm this issue contains 100% synthetic test data and zero real PII, PHI, or active secrets.
+          required: true

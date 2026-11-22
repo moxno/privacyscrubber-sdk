@@ -22,7 +22,7 @@
 
 - **Zero Network & Cloud Leakage:** All detection, tokenization, and restoration run 100% inside local process RAM. Zero outbound HTTP calls, zero third-party sanitization subprocessors, and zero disk persistence.
 - **Deterministic Surrogate Tokenization:** Entities become syntax-preserving typed surrogates (`[NAME_1]`, `[EMAIL_1]`, `[SECRET_1]`, `[FINANCIAL_1]`), retaining LLM reasoning accuracy and multi-turn conversational continuity.
-- **Fault-Tolerant Reverse Detokenization:** `unscrubText()` and streaming detokenizers restore LLM completions cleanly back to original cleartext in local memory even when models alter token casing or wrap tokens in Markdown.
+- **Fault-Tolerant Reverse Detokenization:** `restore()` and streaming detokenizers restore LLM completions cleanly back to original cleartext in local memory even when models alter token casing or wrap tokens in Markdown.
 - **30 Specialized Industry Profiles:** General consumer baseline (Free) plus 30 specialized industry profiles across Healthcare (HIPAA Safe Harbor), Financial Services (PCI-DSS / IBAN / SWIFT), Legal Privilege, DevSecOps Cloud Secrets, Defense, Automotive, Telecom, and Biotech.
 - **Local Compliance Receipts:** Generate SHA-256 audit receipts, severity ratings, and framework attribution metadata in memory for SIEM logging and Statutory Risk Minimization under GDPR Art. 32, Israel Amendment 13 Sec. 17, HIPAA Safe Harbor, SOC 2, PCI-DSS, and NIST AI RMF.
 
@@ -36,12 +36,12 @@ npm install @privacyscrubber/sdk
 
 | Import Path | Environment | Primary Purpose | Types |
 | :--- | :--- | :--- | :--- |
-| `@privacyscrubber/sdk` | Node.js >= 18 (ESM & CJS) | Core `scrubText`, `unscrubText`, `wrapOpenAI`, RAG & Vector DB guards, audit receipts | [`types/index.d.ts`](./types/index.d.ts) |
-| `@privacyscrubber/sdk/browser` | Browsers & Edge Workers | Client-side ESM bundle for SPA/PWA sanitization in browser RAM | [`types/index.d.ts`](./types/index.d.ts) |
+| `@privacyscrubber/sdk` | Node.js >= 18 (ESM & CJS) | Core `sanitize`, `restore`, `wrapOpenAI`, RAG & Vector DB guards, audit receipts | [`types/index.d.ts`](./types/index.d.ts) |
+| `@privacyscrubber/sdk/browser` | Browsers & Edge Workers | Client-side ESM bundle for SPA/PWA sanitization in browser RAM | [`types/browser.d.ts`](./types/browser.d.ts) |
 | `@privacyscrubber/sdk/vercel-ai` | Vercel AI SDK | `withPrivacyScrubber`, `createPrivacyMiddleware`, `createDetokenizerTransformStream` | [`types/vercel-ai.d.ts`](./types/vercel-ai.d.ts) |
 | `@privacyscrubber/sdk/fastmcp` | FastMCP Tool Servers | Zero-trust middleware wrapping MCP tool arguments and return payloads | [`types/fastmcp.d.ts`](./types/fastmcp.d.ts) |
 | `@privacyscrubber/sdk/vision` | Document / Multimodal | In-memory vision & structured document pre-flight boundary | [`types/vision.d.ts`](./types/vision.d.ts) |
-| `@privacyscrubber/sdk/sarif` | CI/CD Security Gates | SARIF v2.1.0 output formatter for repository PII & secret scans | — |
+| `@privacyscrubber/sdk/sarif` | CI/CD Security Gates | SARIF v2.1.0 output formatter for repository PII & secret scans | [`types/sarif.d.ts`](./types/sarif.d.ts) |
 
 CLI tools included with `@privacyscrubber/sdk`:
 
@@ -56,22 +56,22 @@ npx @privacyscrubber/sdk --help
 #### 1. Core In-Memory Scrub & Restore (TypeScript / Node.js)
 
 ```ts
-import { scrubText, unscrubText } from '@privacyscrubber/sdk';
+import { sanitize, restore } from '@privacyscrubber/sdk';
 
 const prompt = 'Prepare renewal memo for Dana Levi (dana@acme-corp.example, +1-415-555-0192).';
 
 // Sanitize locally in RAM (<1ms, 0 external calls)
-const { maskedText, tokenMap, stats } = scrubText(prompt, {
+const { scrubbedText, tokenMap, count } = sanitize(prompt, {
   profile: 'General',
   detectSecrets: true
 });
-// maskedText -> "Prepare renewal memo for [NAME_1] ([EMAIL_1], [PHONE_1])."
+// scrubbedText -> "Prepare renewal memo for [NAME_1] ([EMAIL_1], [PHONE_1])."
 
-// Send ONLY `maskedText` to your external LLM provider...
+// Send ONLY `scrubbedText` to your external LLM provider...
 const llmReply = 'Renewal memo drafted for [NAME_1] via [EMAIL_1].';
 
 // Re-hydrate original values strictly inside local RAM
-const finalOutput = unscrubText(llmReply, tokenMap);
+const { restoredText } = restore(llmReply, tokenMap);
 ```
 
 #### 2. Vercel AI SDK Streaming Middleware (`@privacyscrubber/sdk/vercel-ai`)
@@ -127,7 +127,7 @@ node vercel-ai-stream.js
 
 ### Licensing, Commercial Tiers & Support
 
-- **Free Tier (`$0`):** General baseline profile evaluation (`15,000` chars/scrub) and Specialized Industry Profile trial evaluation (`5,000` chars/scrub).
+- **Free Tier (`$0`):** General baseline profile evaluation (`15,000` chars) and Specialized Industry Profile trial evaluation (`3` calls / `5,000` cumulative chars).
 - **Developer SDK (`$299/mo` or `$2,990/yr`):** Unlimited characters, all 30 Specialized Industry Profiles, offline license validation, unlimited internal backend nodes/microservices/RAG pipelines.
 - **TEAMS (`$99/mo` flat):** Unlimited team seats, encrypted session handoff, and governance cockpit.
 - **Enterprise / OEM:** Air-gapped source licensing and custom compliance profile calibration (`Custom Enterprise Licensing`).

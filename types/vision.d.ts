@@ -4,7 +4,7 @@
 
 export interface ExifStripResult {
     /** The sanitized binary buffer without EXIF/XMP/IPTC/GPS metadata. */
-    cleanBuffer: Uint8Array | Buffer;
+    cleanBuffer: Uint8Array;
     /** Whether any metadata segment was found and stripped. */
     metadataStripped: boolean;
     /** Image format detected: 'jpeg' | 'png' | 'webp' | 'unknown'. */
@@ -35,7 +35,7 @@ export interface VisionRedactOptions {
 /**
  * Strips EXIF, XMP, GPS, and sensitive metadata chunks from image buffers (JPEG, PNG, WebP).
  */
-export function stripExifMetadata(inputBuffer: Buffer | Uint8Array): ExifStripResult;
+export function stripExifMetadata(inputBuffer: Uint8Array): ExifStripResult;
 
 /**
  * Redacts bounding boxes on an HTML Canvas or 2D Canvas context.

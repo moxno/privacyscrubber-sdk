@@ -59,6 +59,17 @@ export interface PrivacyMiddlewareOptions {
   customRules?: Array<{ name: string; pattern: RegExp; tokenType: string }>;
 
   /**
+   * Optional pre-configured PrivacyScrubberEngine instance to reuse.
+   */
+  engine?: any;
+
+  /**
+   * Persist token map state across multiple model calls on the middleware instance.
+   * Default: false
+   */
+  persistSession?: boolean;
+
+  /**
    * Vercel AI SDK Middleware specification version ('v1' | 'v2' | 'v3').
    * Default: 'v1'
    */
@@ -147,7 +158,8 @@ export declare function sanitizePrompt(prompt: any, options?: PrivacyMiddlewareO
 /**
  * Streaming Token Detokenizer with sliding window buffer for LLM chunk boundary splits.
  */
-export { StreamingDetokenizer } from './index';
+import { StreamingDetokenizer } from './index.js';
+export { StreamingDetokenizer };
 
 declare const _default: {
   createPrivacyMiddleware: typeof createPrivacyMiddleware;
@@ -157,7 +169,7 @@ declare const _default: {
   detokenizeStream: typeof detokenizeStream;
   detokenizeText: typeof detokenizeText;
   sanitizePrompt: typeof sanitizePrompt;
-  StreamingDetokenizer: any;
+  StreamingDetokenizer: typeof StreamingDetokenizer;
 };
 
 export default _default;

@@ -11,7 +11,7 @@ body:
     id: version
     attributes:
       label: SDK Version & Runtime
-      placeholder: "@privacyscrubber/sdk 2.5.2 | Node v22.x (ESM / CJS / Browser / Edge)"
+      placeholder: "@privacyscrubber/sdk 2.5.3 | Node v22.x (ESM / CJS / Browser / Edge)"
     validations:
       required: true
   - type: dropdown

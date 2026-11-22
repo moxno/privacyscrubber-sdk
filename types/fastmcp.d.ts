@@ -15,6 +15,11 @@ export interface ZTDSGuardOptions {
   sanitizeOutputs?: boolean;
   useCryptoTokens?: boolean;
   autoZeroize?: boolean;
+  maxSessionTokens?: number;
+  engineMode?: 'auto' | 'full' | 'lightweight';
+  profile?: string;
+  licenseKey?: string;
+  license?: string;
 }
 
 export interface ZTDSContext {
@@ -29,8 +34,8 @@ export declare const TOKEN_PATTERN: RegExp;
 export declare class StreamingDetokenizer {
   constructor(tokenMap?: Record<string, string>, options?: object);
   buffer: string;
-  feed(chunk: string | Uint8Array | Buffer): string;
-  process(chunk: string | Uint8Array | Buffer): string;
+  feed(chunk: string | Uint8Array): string;
+  process(chunk: string | Uint8Array): string;
   flush(): string;
   reset(): void;
   updateTokenMap(newMap: Record<string, string>): void;
@@ -46,6 +51,9 @@ export declare class ZTDSFastMCPGuard {
   sanitizeOutputs: boolean;
   useCryptoTokens: boolean;
   autoZeroize: boolean;
+  maxSessionTokens: number;
+  engineMode: 'auto' | 'full' | 'lightweight';
+  profile: string;
 
   sanitizeText(text: string, sessionId: string): { sanitized: string; tokenMap: Record<string, string> };
   restoreText(text: string, sessionId: string): string;

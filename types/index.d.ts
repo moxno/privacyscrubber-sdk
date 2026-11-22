@@ -109,11 +109,28 @@ export interface DetectedSpan {
     isHighConfidence?: boolean;
 }
 
+export type LicenseTier =
+    | 'PRO'
+    | 'TEAMS'
+    | 'SDK'
+    | 'SDK_INTERNAL'
+    | 'SDK_OEM'
+    | 'ENTERPRISE'
+    | 'ENTERPRISE_AIRGAP'
+    | 'OEM'
+    | 'EVAL'
+    | 'FREE';
+
 export interface LicenseMetadata {
     isPro: boolean;
-    tier: 'PRO' | 'TEAMS' | 'SDK' | 'ENTERPRISE' | 'OEM' | 'EVAL' | 'FREE';
+    tier: LicenseTier;
     limit: number;
     wasTruncated?: boolean;
+    truncated?: boolean;
+    profileFallback?: boolean;
+    effectiveProfile?: string;
+    specializedCallsUsed?: number;
+    specializedCallsLimit?: number;
     licenseId?: string | null;
     error?: string | null;
     upgradeUrl?: string;
@@ -132,7 +149,6 @@ export interface IpHoldings {
     standard: string;
     standardUrl: string;
     patent: string;
-    wipoDas: string;
     trademark: string;
 }
 
@@ -150,14 +166,38 @@ export interface AuditTelemetry {
     types: string[];
     riskLevel: 'CLEAN (ZERO PII)' | 'LOW EXPOSURE' | 'MODERATE EXPOSURE' | 'CRITICAL (HIGH EXPOSURE)';
     frameworksList: string[];
+    triggeredFrameworks?: string[];
+    auditScope?: string;
     statutoryCitations?: StatutoryCitation[];
     ipHoldings?: IpHoldings;
     agenticProtocol?: AgenticProtocolMetadata;
+    multimodalEgress?: string;
+}
+
+export interface ProfileAlternative {
+    profile: PiiProfile;
+    label: string;
+    score: number;
+}
+
+export interface ProfileDetectionResult {
+    detectedProfile: PiiProfile;
+    label: string;
+    confidence: 'high' | 'medium' | 'low';
+    score: number;
+    alternatives: ProfileAlternative[];
+}
+
+export interface ProfileDetectionSummary extends ProfileDetectionResult {
+    autoDetected: boolean;
+    suggestedOnly: boolean;
 }
 
 export interface SanitizeResult {
     /** The scrubbed text with PII/secrets masked. */
     scrubbedText: string;
+    /** Alias for scrubbedText. */
+    scrubbed: string;
     /** The volatile in-memory token map needed to restore data. */
     tokenMap: Record<string, string>;
     /** Full cumulative session map when existingSessionMap was provided. */
@@ -172,6 +212,8 @@ export interface SanitizeResult {
     executionMs: number;
     /** Active license state and tier info. */
     license: LicenseMetadata;
+    /** Detected or resolved compliance profile telemetry. */
+    profileDetection?: ProfileDetectionSummary;
     /** CISO compliance telemetry. */
     telemetry: AuditTelemetry;
     /** Markdown formatted compliance audit receipt. */
@@ -187,7 +229,7 @@ export interface RestoreResult {
 
 export interface LicenseValidationResult {
     valid: boolean;
-    tier: 'PRO' | 'TEAMS' | 'SDK' | 'ENTERPRISE' | 'OEM' | 'EVAL' | null;
+    tier: Exclude<LicenseTier, 'FREE'> | null;
     rawTier?: string | null;
     format?: string | null;
     licenseId?: string | null;
@@ -200,15 +242,22 @@ export interface LicenseValidationResult {
 }
 
 export class PrivacyScrubberLicenseError extends Error {
+    constructor(
+        message?: string,
+        options?: { tier?: string; currentLength?: number; limit?: number; profile?: string; code?: string | null }
+    );
+    code: string | null;
     tier: string;
     currentLength: number;
     limit: number;
     profile: string;
     upgradeUrl: string;
+    trialUrl: string;
+    trialCommand: string;
 }
 
 export function validateLicense(key: string): LicenseValidationResult;
-export function validateLicenseKey(key: string): 'PRO' | 'TEAMS' | 'SDK' | 'ENTERPRISE' | 'OEM' | null;
+export function validateLicenseKey(key: string): Exclude<LicenseTier, 'FREE'> | null;
 
 export function buildAuditTelemetry(currentTokenMap?: Record<string, string> | string[]): AuditTelemetry;
 export const buildCisoAuditTelemetry: typeof buildAuditTelemetry;
@@ -315,8 +364,8 @@ export interface Psr2Receipt {
 
 export function buildPsr2Receipt(tokenMap?: Record<string, string>, timestamp?: string): Psr2Receipt;
 export function psr2Lines(receipt: Psr2Receipt): string[];
-export function _resetCommunityNoticeForTesting(): void;
-export function _resetDevSecretNoticeForTesting(): void;
+export const FREE_PROD_SPECIALIZED_CALL_LIMIT: number;
+export function detectProfile(text: string): ProfileDetectionResult;
 
 /**
  * Sanitizes input text, masking all PII and secrets with zero network requests.
@@ -329,6 +378,7 @@ export interface SanitizeObjectResult<T = any> {
     tokenMap: Record<string, string>;
     count: number;
     executionMs: number;
+    license?: LicenseMetadata;
     telemetry: AuditTelemetry;
     auditReceipt: string;
 }
@@ -676,8 +726,6 @@ export function createGuardedTools(engineOrOptions?: PrivacyScrubberEngine | San
  * Stream token restorer interface for zero-latency SSE chunk processing.
  */
 export interface StreamTokenRestorer {
-    /** Pushes an incoming streaming chunk and returns immediately rehydrated text. */
-    push(chunk: string | Uint8Array | any): string;
     /** Feeds an incoming chunk and returns de-tokenized text. */
     feed(chunk: string | Uint8Array | any): string;
     /** Alias for feed. */
@@ -697,9 +745,12 @@ export interface StreamTokenRestorer {
  */
 export class StreamingDetokenizer {
     constructor(tokenMap?: Record<string, string>, options?: any);
+    buffer: string;
     feed(chunk: string | Uint8Array | any): string;
     process(chunk: string | Uint8Array | any): string;
     flush(): string;
+    reset(): void;
+    updateTokenMap(newMap: Record<string, string>): void;
     toNodeTransform(): any;
     wrapStream<T = any>(asyncIterable: AsyncIterable<T>): AsyncGenerator<any, void, unknown>;
 }
@@ -761,15 +812,17 @@ export function createExpressMiddleware(
 ): (req: any, res: any, next: (err?: any) => void) => void;
 
 // Legacy exports
+export function scrubText(text: string, options: SanitizeOptions): SanitizeResult;
 export function scrubText(
     text: string,
     customRules?: any[],
     tokenLabelMap?: Record<string, string>,
     profile?: string,
     existingSessionMap?: Record<string, string>,
-    isPro?: boolean
+    licenseKey?: string | boolean
 ): {
     scrubbedText: string;
+    scrubbed: string;
     tokenMap: Record<string, string>;
     count: number;
     executionMs: number;
@@ -785,6 +838,7 @@ export function unscrubText(
 
 declare const defaultExport: {
     SDK_VERSION: typeof SDK_VERSION;
+    detectProfile: typeof detectProfile;
     clean: typeof clean;
     sanitize: typeof sanitize;
     sanitizeObject: typeof sanitizeObject;
@@ -838,13 +892,14 @@ declare const defaultExport: {
     scrubText: typeof scrubText;
     unscrubText: typeof unscrubText;
     DEVOPS_SECRETS_DETECTOR: typeof DEVOPS_SECRETS_DETECTOR;
+    FREE_PROD_SPECIALIZED_CALL_LIMIT: typeof FREE_PROD_SPECIALIZED_CALL_LIMIT;
     stripExifMetadata: typeof stripExifMetadata;
     redactImageBoundingBoxes: typeof redactImageBoundingBoxes;
     generateSvgRedactionOverlay: typeof generateSvgRedactionOverlay;
 };
 
 export interface ExifStripResult {
-    cleanBuffer: Uint8Array | Buffer;
+    cleanBuffer: Uint8Array;
     metadataStripped: boolean;
     format: string;
     removedSegments: string[];
@@ -865,7 +920,7 @@ export interface VisionRedactOptions {
     showLabels?: boolean;
 }
 
-export function stripExifMetadata(inputBuffer: Buffer | Uint8Array): ExifStripResult;
+export function stripExifMetadata(inputBuffer: Uint8Array): ExifStripResult;
 export function redactImageBoundingBoxes(
     canvasOrCtx: any,
     boxes?: VisionBoundingBox[],

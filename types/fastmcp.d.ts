@@ -94,3 +94,18 @@ export declare function withZTDS<TServer extends object = object>(
   server: TServer,
   options?: ZTDSGuardOptions
 ): TServer;
+
+declare const _default: {
+  ZTDSFastMCPGuard: typeof ZTDSFastMCPGuard;
+  ZTDS_PATTERNS: typeof ZTDS_PATTERNS;
+  TOKEN_PATTERN: typeof TOKEN_PATTERN;
+  StreamingDetokenizer: typeof StreamingDetokenizer;
+  createStreamTokenRestorer: typeof createStreamTokenRestorer;
+  createZTDSGuard: typeof createZTDSGuard;
+  ztdsGuardTool: typeof ztdsGuardTool;
+  wrapExecute: typeof wrapExecute;
+  withZTDS: typeof withZTDS;
+  inspectToolMetadata: typeof inspectToolMetadata;
+  inspectToolArgsForSsrf: typeof inspectToolArgsForSsrf;
+};
+export default _default;

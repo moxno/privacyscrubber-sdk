@@ -1,10 +1,10 @@
 {
   "name": "privacyscrubber-sdk-examples",
-  "version": "2.5.3",
+  "version": "2.5.5",
   "private": true,
   "type": "module",
   "description": "Runnable integration examples for @privacyscrubber/sdk (Vercel AI SDK, LangChain, LlamaIndex, Vector DBs).",
   "dependencies": {
-    "@privacyscrubber/sdk": "^2.5.3"
+    "@privacyscrubber/sdk": "^2.5.5"
   }
 }

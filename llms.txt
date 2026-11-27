@@ -1,0 +1,31 @@
+# @privacyscrubber/sdk (v2.5.5)
+
+> Zero-dependency Node.js, TypeScript, Browser, and WASM Developer SDK implementing Zero-Trust Data Sanitization (ZTDS RFC v1.0) in local process RAM with sub-millisecond latency and zero external network egress.
+
+- **Package Version (SSOT):** `v2.5.5` (`npm install @privacyscrubber/sdk`)
+- **Documentation & Live Sandbox:** https://privacyscrubber.com/sdk/
+- **Markdown Docs Mirror:** https://privacyscrubber.com/sdk.md
+- **Public Repository:** https://github.com/moxno/privacyscrubber-sdk
+- **Companion IDE MCP Server:** https://github.com/moxno/privacyscrubber-mcp (`@privacyscrubber/mcp-server`)
+- **ZTDS Open Standard:** https://ztds.ai/ · https://datatracker.ietf.org/doc/draft-sibiryakov-ztds-protocol/
+
+## Subpath Exports & TypeScript Definitions
+- `@privacyscrubber/sdk` (`./types/index.d.ts`): Core `sanitize`, `restore`, `PrivacyScrubberEngine`, `wrapOpenAI`, LangChain/LlamaIndex transforms, Vector DB ingestion guards (`createVectorIngestionGuard`), and SHA-256 audit receipts.
+- `@privacyscrubber/sdk/browser` (`./types/browser.d.ts`): Client-side ESM bundle for SPA/PWA sanitization strictly in browser RAM.
+- `@privacyscrubber/sdk/vercel-ai` (`./types/vercel-ai.d.ts`): `withPrivacyScrubber`, `createPrivacyMiddleware`, and `createDetokenizerTransformStream` for SSE streaming re-hydration.
+- `@privacyscrubber/sdk/fastmcp` (`./types/fastmcp.d.ts`): Zero-trust middleware wrapping FastMCP tool arguments and responses.
+- `@privacyscrubber/sdk/vision` (`./types/vision.d.ts`): In-memory document and image pre-flight sanitization boundary.
+- `@privacyscrubber/sdk/sarif` (`./types/sarif.d.ts`): SARIF v2.1.0 output formatter for CI/CD PII and secret scans.
+
+## Runnable Framework Examples (`./examples/`)
+- `examples/vercel-ai-stream.js` — Vercel AI SDK streaming sanitization & SSE detokenizer
+- `examples/langchain-rag.js` — LangChain document pre-ingestion and prompt/output transform
+- `examples/llamaindex-rag.js` — LlamaIndex node/document pre-ingestion guard
+- `examples/vector-guard-rag.js` — Chroma, Pinecone, Qdrant & Weaviate vector ingestion wrapper
+
+## Licensing & Commercial Tiers
+- **Free Tier (`$0`):** General baseline profile (`15,000` chars) and Specialized Industry Profile trial evaluation (`3` calls / `5,000` cumulative chars).
+- **Developer SDK (`$299/mo` or `$2,990/yr`):** Unlimited characters, all 30 Specialized Industry Profiles, offline license validation, unlimited internal backend nodes/microservices/RAG pipelines.
+- **TEAMS (`$99/mo` flat):** Unlimited team seats, governance cockpit, and encrypted session handoff.
+- **Enterprise / OEM:** Custom air-gapped source licensing (`https://privacyscrubber.com/enterprise/`).
+- **Support:** `support@privacyscrubber.com` · https://privacyscrubber.com/pricing/

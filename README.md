@@ -127,7 +127,7 @@ node vercel-ai-stream.js
 
 ### Licensing, Commercial Tiers & Support
 
-- **Free Tier (`$0`):** General baseline profile evaluation (`15,000` chars) and Specialized Industry Profile trial evaluation (`3` calls / `5,000` cumulative chars).
+- **Free Tier (`$0`):** General baseline profile evaluation (`15,000` chars) and Specialized Industry Profile trial evaluation (`5,000` chars per call / `250` production calls before graceful `General` fallback).
 - **Developer SDK (`$299/mo` or `$2,990/yr`):** Unlimited characters, all 30 Specialized Industry Profiles, offline license validation, unlimited internal backend nodes/microservices/RAG pipelines.
 - **TEAMS (`$99/mo` flat):** Unlimited team seats, encrypted session handoff, and governance cockpit.
 - **Enterprise / OEM:** Air-gapped source licensing and custom compliance profile calibration (`Custom Enterprise Licensing`).
